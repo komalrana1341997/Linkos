@@ -1,37 +1,46 @@
-const express = require("express");
-const router = express.Router();
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const User = require("../models/User");
+import { NextResponse } from "next/server";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import User from "@/models/User";
+import connectDB from "@/lib/connectDB"; // make sure you have this
 
-router.post("/login", async (req, res) => {
-  const { email, password } = req.body;
-
+export async function POST(req) {
   try {
+    await connectDB();
+
+    const { email, password } = await req.json();
+
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(400).json({ message: "User not found" });
+      return NextResponse.json(
+        { message: "User not found" },
+        { status: 400 }
+      );
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-      return res.status(400).json({ message: "Wrong password" });
+      return NextResponse.json(
+        { message: "Wrong password" },
+        { status: 400 }
+      );
     }
 
-    // ✅ Generate token
+    // ✅ Use ENV variable (IMPORTANT for Vercel)
     const token = jwt.sign(
       { id: user._id },
-      "SECRET_KEY",
+      process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
 
-    res.json({ token });
+    return NextResponse.json({ token });
 
   } catch (err) {
-    res.status(500).json({ message: "Server error" });
+    return NextResponse.json(
+      { message: "Server error" },
+      { status: 500 }
+    );
   }
-});
-
-module.exports = router;
+}
