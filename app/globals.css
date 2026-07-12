@@ -1,26 +1,74 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.animate-fadeIn {
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+.card {
+  position: absolute;
+  width: 200px;
+  padding: 16px;
+  background: white;
+  border-radius: 18px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+  text-align: center;
+
+  /* Start slightly below */
+  transform: translateY(100px);
+  opacity: 0;
+}
+
+/* CENTER */
+.center-card {
+  z-index: 10;
+  animation: centerUp 0.8s ease forwards;
+}
+
+/* LEFT */
+.left-card {
+  left: -120px;
+  transform: rotate(-12deg) translateY(100px);
+  animation: leftUp 0.8s ease forwards;
+  animation-delay: 0.2s;
+}
+
+/* RIGHT */
+.right-card {
+  right: -120px;
+  transform: rotate(12deg) translateY(100px);
+  animation: rightUp 0.8s ease forwards;
+  animation-delay: 0.4s;
+}
+
+/* Animations */
+@keyframes centerUp {
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes leftUp {
+  to {
+    transform: translateY(0) rotate(-12deg);
+    opacity: 1;
+  }
+}
+
+@keyframes rightUp {
+  to {
+    transform: translateY(0) rotate(12deg);
+    opacity: 1;
+  }
 }
