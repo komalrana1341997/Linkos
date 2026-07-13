@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { Suspense } from "react";
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+
 import {
     FaPlus,
     FaTrash,
@@ -43,38 +44,38 @@ export default function CreatePage() {
     const [plan, setPlan] = useState("free"); // "free" or "pro"
 
     const PLAN_LIMITS = {
-    free: 20,
-    pro: Infinity
-};
+        free: 20,
+        pro: Infinity
+    };
 
-   useEffect(() => {
-  if (editHandle) {
-    fetch(`/api/getUser?handle=${editHandle}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data) {
-          setHandle(data.handle || "");
-          setdesc(data.desc || "");
+    useEffect(() => {
+        if (editHandle) {
+            fetch(`/api/getUser?handle=${editHandle}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data) {
+                        setHandle(data.handle || "");
+                        setdesc(data.desc || "");
 
-          // ✅ FIX LINKS HERE
-          const formattedLinks = (data.links || []).map((link, index) => ({
-            id: Date.now() + index, // required for React
-            title: link.title || "",
-            url: link.url || "",
-            active: true, // default
-            clicks: link.clicks || 0
-          }));
+                        // ✅ FIX LINKS HERE
+                        const formattedLinks = (data.links || []).map((link, index) => ({
+                            id: Date.now() + index, // required for React
+                            title: link.title || "",
+                            url: link.url || "",
+                            active: true, // default
+                            clicks: link.clicks || 0
+                        }));
 
-          setLinks(formattedLinks);
+                        setLinks(formattedLinks);
 
-          setImage(data.image || null);
-          setTheme(data.theme || "dark");
-          setCustomColor(data.customColor || "#000000");
-          setBgImage(data.bgImage || null);
+                        setImage(data.image || null);
+                        setTheme(data.theme || "dark");
+                        setCustomColor(data.customColor || "#000000");
+                        setBgImage(data.bgImage || null);
+                    }
+                });
         }
-      });
-  }
-}, [editHandle]);
+    }, [editHandle]);
 
 
 
@@ -187,15 +188,15 @@ export default function CreatePage() {
     ];
 
 
-   const addLink = () => {
-    const limit = PLAN_LIMITS[plan];
+    const addLink = () => {
+        const limit = PLAN_LIMITS[plan];
 
-    if (links.length >= limit) {
-        return alert("Upgrade to Pro for unlimited links 🚀");
-    }
+        if (links.length >= limit) {
+            return alert("Upgrade to Pro for unlimited links 🚀");
+        }
 
-    setLinks([...links, { title: "", url: "" }]);
-};
+        setLinks([...links, { title: "", url: "" }]);
+    };
 
     const removeLink = (index) => {
         setLinks(links.filter((_, i) => i !== index));
@@ -212,37 +213,40 @@ export default function CreatePage() {
         if (file) setImage(URL.createObjectURL(file));
     };
 
-   const submitLinks = async () => {
-    const cleanHandle = handle
-        .toLowerCase()
-        .replaceAll(" ", "")
-        .trim();
+    const submitLinks = async () => {
+        const cleanHandle = handle
+            .toLowerCase()
+            .replaceAll(" ", "")
+            .trim();
 
-    const data = {
-        handle: cleanHandle,
-        image: image?.startsWith("blob:") ? null : image, // ✅ FIX
-        desc,
-        links: links.map(link => ({
-            ...link,
-            clicks: link.clicks || 0
-        })),
-        theme,
-        customColor,
-        bgImage,
-        views: editHandle ? undefined : 0, // ✅ FIX
-    };
+        const data = {
+            handle: cleanHandle,
+            image: image?.startsWith("blob:") ? null : image, // ✅ FIX
+            desc,
+            links: links.map(link => ({
+                ...link,
+                clicks: link.clicks || 0
+            })),
+            theme,
+            customColor,
+            bgImage,
+            views: editHandle ? undefined : 0, // ✅ FIX
+        };
 
-    try {
-        const res = await fetch("/api/links", {
-            method: editHandle ? "PUT" : "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
-        });
+        try {
+            const res = await fetch("/api/links", {
+                method: editHandle ? "PUT" : "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    ...data,
+                    email: session?.user?.email, // ✅ ADD THIS LINE
+                }),
+            });
 
-        const result = await res.json();
-     
+            const result = await res.json();
+
             if (result.success) {
                 const cleanHandle = handle
                     .toLowerCase()
@@ -272,235 +276,235 @@ export default function CreatePage() {
 
     return (
         <Suspense fallback={<div>Loading...</div>}>
-        <div className="min-h-screen bg-gradient-to-br from-gray-100 to-purple-100 animate-fadeIn flex flex-col">
-            <Navbar username={username} />
-            <div className="flex justify-center mt-10 px-4 w-full">
+            <div className="min-h-screen bg-gradient-to-br from-gray-100 to-purple-100 animate-fadeIn flex flex-col">
+                <Navbar username={username} />
+                <div className="flex justify-center mt-10 px-4 w-full">
 
-                <div className="w-full max-w-6xl mx-auto flex gap-10 justify-center">
+                    <div className="w-full max-w-6xl mx-auto flex gap-10 justify-center">
 
-                    {/* LEFT PANEL */}
-                    <div className="w-full md:w-1/2 bg-white p-6 rounded-2xl shadow-xl">
+                        {/* LEFT PANEL */}
+                        <div className="w-full md:w-1/2 bg-white p-6 rounded-2xl shadow-xl">
 
-                        <h1 className="text-2xl font-bold mb-6">
-                            Customize your page
-                        </h1>
+                            <h1 className="text-2xl font-bold mb-6">
+                                Customize your page
+                            </h1>
 
-                        {/* PROFILE */}
-                        <div className="flex flex-col items-center mb-6">
-                            <label className="cursor-pointer group">
-                                <div className="w-24 h-24 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center group-hover:scale-105 transition">
-                                    {image ? (
-                                        <img
-                                            src={image}
-                                            className="w-full h-full object-cover"
-                                        />
-                                    ) : (
-                                        <span className="text-gray-500 text-sm">
-                                            Upload
-                                        </span>
-                                    )}
-                                </div>
-                                <input type="file" hidden onChange={handleImage} />
-                            </label>
+                            {/* PROFILE */}
+                            <div className="flex flex-col items-center mb-6">
+                                <label className="cursor-pointer group">
+                                    <div className="w-24 h-24 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center group-hover:scale-105 transition">
+                                        {image ? (
+                                            <img
+                                                src={image}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <span className="text-gray-500 text-sm">
+                                                Upload
+                                            </span>
+                                        )}
+                                    </div>
+                                    <input type="file" hidden onChange={handleImage} />
+                                </label>
 
-                            <input
-                                type="text"
-                                placeholder="@username"
-                                value={handle}
-                                onChange={(e) => setHandle(e.target.value)}
-                                className="mt-3 p-2 border-2 border-green-600  rounded-lg w-full text-center"
-                            />
+                                <input
+                                    type="text"
+                                    placeholder="@username"
+                                    value={handle}
+                                    onChange={(e) => setHandle(e.target.value)}
+                                    className="mt-3 p-2 border-2 border-green-600  rounded-lg w-full text-center"
+                                />
 
-                            <input
-                                className="w-full mt-2 border-2 text-center border-green-600 px-4 py-2 rounded-lg"
-                                type="text"
-                                value={desc}
-                                onChange={(e) => setdesc(e.target.value)}
-                                placeholder="Description"
-                            />
-                        </div>
+                                <input
+                                    className="w-full mt-2 border-2 text-center border-green-600 px-4 py-2 rounded-lg"
+                                    type="text"
+                                    value={desc}
+                                    onChange={(e) => setdesc(e.target.value)}
+                                    placeholder="Description"
+                                />
+                            </div>
 
-                        <div className="mt-5">
-                            <p className="font-semibold">Choose Theme</p>
+                            <div className="mt-5">
+                                <p className="font-semibold">Choose Theme</p>
 
-                            <div className="flex flex-wrap gap-2 mt-3">
-                                {Object.keys(themes).map((t) => (
-                                    <button
-                                        key={t}
-                                        onClick={() => setTheme(t)}
-                                        className={`px-3 py-1 rounded-full border text-sm capitalize 
+                                <div className="flex flex-wrap gap-2 mt-3">
+                                    {Object.keys(themes).map((t) => (
+                                        <button
+                                            key={t}
+                                            onClick={() => setTheme(t)}
+                                            className={`px-3 py-1 rounded-full border text-sm capitalize 
                 ${theme === t ? "bg-black text-white" : "bg-gray-200"}`}
-                                    >
-                                        {t}
-                                    </button>
-                                ))}
+                                        >
+                                            {t}
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
-                        </div>
 
-                        {/* GRADIENT PICKER */}
-                        <div className="mb-6">
-                            <h3 className="text-sm font-medium mb-1 mt-2">Gradients</h3>
+                            {/* GRADIENT PICKER */}
+                            <div className="mb-6">
+                                <h3 className="text-sm font-medium mb-1 mt-2">Gradients</h3>
 
-                            <div className="flex gap-2 flex-wrap">
-                                {gradients.map((g, i) => (
-                                    <button
-                                        key={i}
-                                        onClick={() => {
-                                            setTheme("gradient");
-                                            setCustomColor(g);
-                                        }}
-                                        className="w-10 h-10 rounded-full border"
-                                        style={{ background: g }}
-                                    />
-                                ))}
+                                <div className="flex gap-2 flex-wrap">
+                                    {gradients.map((g, i) => (
+                                        <button
+                                            key={i}
+                                            onClick={() => {
+                                                setTheme("gradient");
+                                                setCustomColor(g);
+                                            }}
+                                            className="w-10 h-10 rounded-full border"
+                                            style={{ background: g }}
+                                        />
+                                    ))}
+                                </div>
                             </div>
-                        </div>
 
 
 
-                        {/* PRESET BACKGROUNDS */}
-                        <div className="mb-6">
-                            <h3 className="text-sm font-medium mb-2">Choose Background</h3>
+                            {/* PRESET BACKGROUNDS */}
+                            <div className="mb-6">
+                                <h3 className="text-sm font-medium mb-2">Choose Background</h3>
 
-                            <div className="grid grid-cols-2 gap-3">
-                                {presetBackgrounds.map((bg, i) => (
+                                <div className="grid grid-cols-2 gap-3">
+                                    {presetBackgrounds.map((bg, i) => (
+                                        <div
+                                            key={i}
+                                            onClick={() => {
+                                                setBgImage(bg);
+                                                setTheme("image");
+                                            }}
+                                            className="h-24 rounded-xl cursor-pointer bg-cover bg-center hover:scale-105 transition"
+                                            style={{ backgroundImage: `url(${bg})` }}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* LINKS */}
+                            <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
+
+                                {links.map((link, index) => (
                                     <div
-                                        key={i}
-                                        onClick={() => {
-                                            setBgImage(bg);
-                                            setTheme("image");
-                                        }}
-                                        className="h-24 rounded-xl cursor-pointer bg-cover bg-center hover:scale-105 transition"
-                                        style={{ backgroundImage: `url(${bg})` }}
-                                    />
-                                ))}
-                            </div>
-                        </div>
+                                        key={index}
+                                        className="bg-gray-50 p-4  rounded-xl shadow-sm hover:shadow-md transition"
+                                    >
+                                        <div className="flex items-center  gap-2 mb-2">
+                                            {getIcon(link.url)}
+                                            <input
+                                                type="text"
+                                                placeholder="Title"
+                                                value={link.title}
+                                                onChange={(e) =>
+                                                    updateLink(index, "title", e.target.value)
+                                                }
+                                                className="w-full p-2 border-2 border-green-500 rounded-md"
+                                            />
+                                        </div>
 
-                        {/* LINKS */}
-                        <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
-
-                            {links.map((link, index) => (
-                                <div
-                                    key={index}
-                                    className="bg-gray-50 p-4  rounded-xl shadow-sm hover:shadow-md transition"
-                                >
-                                    <div className="flex items-center  gap-2 mb-2">
-                                        {getIcon(link.url)}
                                         <input
                                             type="text"
-                                            placeholder="Title"
-                                            value={link.title}
+                                            placeholder="https://yourlink.com"
+                                            value={link.url}
                                             onChange={(e) =>
-                                                updateLink(index, "title", e.target.value)
+                                                updateLink(index, "url", e.target.value)
                                             }
                                             className="w-full p-2 border-2 border-green-500 rounded-md"
                                         />
+
+                                        <button
+                                            onClick={() => removeLink(index)}
+                                            className="text-red-500 text-sm mt-2 flex items-center gap-1"
+                                        >
+                                            <FaTrash /> Remove
+                                        </button>
                                     </div>
+                                ))}
 
-                                    <input
-                                        type="text"
-                                        placeholder="https://yourlink.com"
-                                        value={link.url}
-                                        onChange={(e) =>
-                                            updateLink(index, "url", e.target.value)
-                                        }
-                                        className="w-full p-2 border-2 border-green-500 rounded-md"
-                                    />
+                                <button
+                                    onClick={addLink}
+                                    className="w-full py-3 bg-green-500 text-black font-semibold rounded-xl flex justify-center items-center gap-2 hover:bg-green-400 cursor-pointer transition"
+                                >
+                                    <FaPlus /> Add Link
+                                </button>
+                            </div>
 
-                                    <button
-                                        onClick={() => removeLink(index)}
-                                        className="text-red-500 text-sm mt-2 flex items-center gap-1"
-                                    >
-                                        <FaTrash /> Remove
-                                    </button>
-                                </div>
-                            ))}
-
+                            {/* SAVE */}
                             <button
-                                onClick={addLink}
-                                className="w-full py-3 bg-green-500 text-black font-semibold rounded-xl flex justify-center items-center gap-2 hover:bg-green-400 cursor-pointer transition"
+                                onClick={submitLinks}
+                                className={`w-full border-2 cursor-pointer border-green-300 mt-6 py-3 rounded-xl 
+hover:opacity-90 transition font-semibold 
+${themes[theme].button}`}
                             >
-                                <FaPlus /> Add Link
+                                Save & Publish 🚀
                             </button>
                         </div>
 
-                        {/* SAVE */}
-                        <button
-                            onClick={submitLinks}
-                            className={`w-full border-2 cursor-pointer border-green-300 mt-6 py-3 rounded-xl 
-hover:opacity-90 transition font-semibold 
-${themes[theme].button}`}
-                        >
-                            Save & Publish 🚀
-                        </button>
-                    </div>
-
-                    {/* RIGHT PREVIEW */}
-                    <div className="hidden md:flex w-1/2 justify-center items-start">
-                        <div
-                            className={`w-80 rounded-3xl p-5 shadow-2xl 
+                        {/* RIGHT PREVIEW */}
+                        <div className="hidden md:flex w-1/2 justify-center items-start">
+                            <div
+                                className={`w-80 rounded-3xl p-5 shadow-2xl 
 ${themes[theme].bg} ${themes[theme].text}`}
-                            style={{
-                                backgroundColor:
-                                    !bgImage && (theme === "custom" || theme === "gradient")
-                                        ? customColor
-                                        : undefined,
-
-                                backgroundImage:
-                                    theme === "image"
-                                        ? `url(${bgImage})`
-                                        : theme === "gradient"
+                                style={{
+                                    backgroundColor:
+                                        !bgImage && (theme === "custom" || theme === "gradient")
                                             ? customColor
                                             : undefined,
 
-                                backgroundSize: "cover",
-                                backgroundPosition: "center",
-                                backgroundRepeat: "no-repeat",
-                            }}
-                        >
+                                    backgroundImage:
+                                        theme === "image"
+                                            ? `url(${bgImage})`
+                                            : theme === "gradient"
+                                                ? customColor
+                                                : undefined,
 
-                            <div className="flex flex-col items-center">
-                                <div className="w-20 h-20 rounded-full overflow-hidden animate-pulse hover:scale-110 transition">
-                                    {image && (
-                                        <img
-                                            src={image}
-                                            className="w-full h-full object-cover"
-                                        />
-                                    )}
+                                    backgroundSize: "cover",
+                                    backgroundPosition: "center",
+                                    backgroundRepeat: "no-repeat",
+                                }}
+                            >
+
+                                <div className="flex flex-col items-center">
+                                    <div className="w-20 h-20 rounded-full overflow-hidden animate-pulse hover:scale-110 transition">
+                                        {image && (
+                                            <img
+                                                src={image}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        )}
+                                    </div>
+
+                                    <h2 className="mt-3 font-bold">
+                                        {handle || "@username"}
+                                    </h2>
+
+                                    {/* ✅ ADD DESCRIPTION HERE */}
+                                    <p className="text-sm font-medium opacity-100  text-white  text-center mt-1 max-w-xs leading-relaxed">
+                                        {desc || "Your description..."}
+                                    </p>
                                 </div>
 
-                                <h2 className="mt-3 font-bold">
-                                    {handle || "@username"}
-                                </h2>
-
-                                {/* ✅ ADD DESCRIPTION HERE */}
-                                <p className="text-sm font-medium opacity-100  text-white  text-center mt-1 max-w-xs leading-relaxed">
-                                    {desc || "Your description..."}
-                                </p>
-                            </div>
 
 
-
-                            <div className="mt-5 space-y-3">
-                                {links.map((link, i) => (
-                                    <div
-                                        key={i}
-                                        className={`py-3 px-4 rounded-xl flex items-center gap-3 
+                                <div className="mt-5 space-y-3">
+                                    {links.map((link, i) => (
+                                        <div
+                                            key={i}
+                                            className={`py-3 px-4 rounded-xl flex items-center gap-3 
             transition-all duration-300 hover:scale-105 hover:shadow-xl 
             active:scale-95 ${themes[theme].card}`}
-                                    >
-                                        {getIcon(link.url)}
-                                        <span>{link.title || "Your Link"}</span>
-                                    </div>
-                                ))}
+                                        >
+                                            {getIcon(link.url)}
+                                            <span>{link.title || "Your Link"}</span>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         </div>
-                    </div>
 
+                    </div>
                 </div>
             </div>
-        </div>
         </Suspense>
 
     )

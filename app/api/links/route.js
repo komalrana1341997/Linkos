@@ -1,5 +1,74 @@
 import clientPromise from "@/lib/mongodb";
 
+export async function POST(req) {
+  try {
+    const body = await req.json();
+
+    const client = await clientPromise;
+    const db = client.db("linkify");
+
+    const cleanHandle = body.handle
+      .toLowerCase()
+      .replace(/\s+/g, "")
+      .trim();
+
+    // 🚨 HANDLE REQUIRED
+    if (!cleanHandle) {
+      return Response.json({
+        success: false,
+        message: "Handle is required",
+      });
+    }
+
+    // 🚨 CHECK IF HANDLE EXISTS
+    const existing = await db
+      .collection("links")
+      .findOne({ handle: cleanHandle });
+
+    if (existing) {
+      return Response.json({
+        success: false,
+        message: "Handle already taken",
+      });
+    }
+
+    // ✅ CREATE NEW LINK PAGE
+    await db.collection("links").insertOne({
+      handle: cleanHandle,
+      image: body.image || "",
+      desc: body.desc || "",
+      links: body.links || [],
+      theme: body.theme || "light",
+      customColor: body.customColor || "",
+      bgImage: body.bgImage || "",
+      createdAt: new Date(),
+    });
+
+    // ✅ 🔥 UPDATE USER HANDLE (VERY IMPORTANT)
+    await db.collection("accounts").updateOne(
+      { email: body.email }, // must send email from frontend
+      {
+        $set: {
+          handle: cleanHandle,
+        },
+      }
+    );
+
+    return Response.json({
+      success: true,
+      message: "Created successfully",
+    });
+
+  } catch (error) {
+    console.log("POST ERROR:", error);
+
+    return Response.json({
+      success: false,
+      error: error.message,
+    });
+  }
+}
+
 export async function PUT(req) {
   try {
     const body = await req.json();
@@ -7,20 +76,26 @@ export async function PUT(req) {
     const client = await clientPromise;
     const db = client.db("linkify");
 
-    // 1. Get user plan (for now assume from body)
-    const plan = body.plan || "free";
+    const cleanHandle = body.handle
+      .toLowerCase()
+      .replace(/\s+/g, "")
+      .trim();
 
-    // 2. 🚨 LIMIT CHECK
+    // 🚨 LIMIT CHECK
+    const plan = body.plan || "free";
     if (plan === "free" && body.links.length > 20) {
-      return Response.json({
-        success: false,
-       message: "Upgrade to Pro 🚀 to add more links",
-      }, { status: 403 });
+      return Response.json(
+        {
+          success: false,
+          message: "Upgrade to Pro 🚀 to add more links",
+        },
+        { status: 403 }
+      );
     }
 
-    // 3. Update
+    // ✅ UPDATE EXISTING
     const result = await db.collection("links").updateOne(
-      { handle: body.handle },
+      { handle: cleanHandle },
       {
         $set: {
           image: body.image,
@@ -41,7 +116,8 @@ export async function PUT(req) {
     });
 
   } catch (error) {
-    console.log(error);
+    console.log("PUT ERROR:", error);
+
     return Response.json({
       success: false,
       error: error.message,
