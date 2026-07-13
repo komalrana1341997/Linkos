@@ -9,7 +9,7 @@ export default async function Page({ params }) {
 
     try {
         // ✅ Get handle safely
-        const { handle } = await params;
+        const { handle } =  params;
 
         if (!handle) {
             return <div className="text-center mt-10">Invalid URL</div>;
@@ -37,7 +37,7 @@ export default async function Page({ params }) {
             return <div className="text-center mt-10">User not found</div>;
         }
 
-        const theme = templates[userData.theme] || templates.default;
+       const theme = templates[userData?.theme] || templates.default;
 
         // ✅ STEP 2: Increase profile views
         await db.collection("links").updateOne(
