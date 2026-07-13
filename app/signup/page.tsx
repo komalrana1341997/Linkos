@@ -65,23 +65,23 @@ export default function SignupPage() {
           <div className="mt-6 space-y-3">
 
             <button
-              onClick={() =>
-                signIn("google", {
-                  callbackUrl: "/create",
-                  prompt: "select_account",
-                })}
+              // onClick={() =>
+              //   signIn("google", {
+              //     callbackUrl: "/create",
+              //     prompt: "select_account",
+              //   })}
               className="w-full cursor-pointer border py-3 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-100"
             >
               <img src="https://img.icons8.com/color/24/google-logo.png" />
-              Continue with Google
+              Continue with Google (Coming Soon)
             </button>
 
             <button
-              onClick={() => signIn("facebook")}
+              // onClick={() => signIn("facebook")}
               className="w-full cursor-pointer border py-3 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-100"
             >
               <img src="https://img.icons8.com/color/24/facebook.png" />
-              Continue with Facebook
+              Continue with Facebook (Coming Soon)
             </button>
 
           </div>

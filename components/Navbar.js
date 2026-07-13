@@ -57,7 +57,7 @@ const Navbar = ({ username = null }) => {
 
         {isHomepage ? (
           <>
-            {/* LOGIN */}
+            
             <div
               onClick={() => {
                 if (session) {
@@ -74,7 +74,7 @@ const Navbar = ({ username = null }) => {
               Login
             </div>
 
-            {/* SIGNUP */}
+            
             <div
               onClick={() => {
                 if (session) {

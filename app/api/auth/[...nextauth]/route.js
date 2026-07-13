@@ -11,41 +11,41 @@ const handler = NextAuth({
   ],
 
   callbacks: {
-    async signIn({ user }) {
-      try {
-        const client = await clientPromise;
-        const db = client.db("linkify");
+   async signIn({ user }) {
+  try {
+    const client = await clientPromise;
+    const db = client.db("linkify");
 
-        const existingUser = await db
-          .collection("accounts")
-          .findOne({ email: user.email });
+    const existingUser = await db
+      .collection("accounts")
+      .findOne({ email: user.email });
 
-        if (!existingUser) {
-          await db.collection("accounts").insertOne({
-            name: user.name,
-            email: user.email,
-            image: user.image || "",
-            password: null,
-            provider: "google",
-
-            // ✅ ADD THESE
-            plan: "free",
-            handle: "", // will be set later on create page
-
-            createdAt: new Date(),
-          });
-        }
-
-        return true;
-      } catch (error) {
-        console.log("SIGNIN ERROR:", error); // 👈 add this
-        return false;
-      }
-    },
-
-    async redirect({ baseUrl, url }) {
-      return baseUrl + "/create";
+    if (!existingUser) {
+      await db.collection("accounts").insertOne({
+        name: user.name,
+        email: user.email,
+        image: user.image || "",
+        password: null,
+        provider: "google",
+        plan: "free",
+        handle: "",
+        createdAt: new Date(),
+      });
     }
+
+    return true;
+  } catch (error) {
+    console.log("SIGNIN ERROR:", error);
+
+    // ✅ IMPORTANT: STILL ALLOW LOGIN
+    return true;
+  }
+},
+    async redirect({ url, baseUrl }) {
+  if (url.startsWith("/")) return `${baseUrl}${url}`;
+  if (new URL(url).origin === baseUrl) return url;
+  return baseUrl + "/create";
+}
   },
 });
 
