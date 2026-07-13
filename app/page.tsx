@@ -65,12 +65,7 @@ const home = () => {
               Sign up Free 🚀
             </button>
 
-            {/* <button
-              onClick={() => router.push("/create")}
-              className="mt-8 bg-white cursor-pointer text-green-600 px-8 py-3 rounded-full font-semibold shadow-lg"
-            >
-              Create Your Link Page 🚀
-            </button> */}
+  
           </div>
 
           <div className="w-full flex justify-center items-end mt-24 relative">
