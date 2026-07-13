@@ -48,17 +48,20 @@ const home = () => {
             </p>
 
             <button
-             onClick={() => {
+              onClick={() => {
                 if (session) {
-                  const username = session.user.name
-                    ?.toLowerCase()
-                    .replace(/\s+/g, "");
-                  router.push(`/studio/${username}`);
+                  if (session?.user?.name) {
+                    const username = session.user.name
+                      .toLowerCase()
+                      .replace(/\s+/g, "");
+
+                    router.push(`/studio/${username}`);
+                  }
                 } else {
                   router.push("/signup");
                 }
               }}
-            className="mt-8 bg-white cursor-pointer text-green-600 px-8 py-3 rounded-full font-semibold shadow-lg">
+              className="mt-8 bg-white cursor-pointer text-green-600 px-8 py-3 rounded-full font-semibold shadow-lg">
               Sign up Free 🚀
             </button>
           </div>

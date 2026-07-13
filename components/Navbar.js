@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import { useSession, signOut } from "next-auth/react";
 
 
-const Navbar = ({ username }) => {
+const Navbar = ({ username = null }) => {
 
   const pathname = usePathname()
   const router = useRouter()
