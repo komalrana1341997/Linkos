@@ -38,14 +38,14 @@ const handler = NextAuth({
 
         return true;
       } catch (error) {
-        console.log(error);
+        console.log("SIGNIN ERROR:", error); // 👈 add this
         return false;
       }
     },
 
-   async redirect({ baseUrl, url }) {
-  return baseUrl + "/create";
-}
+    async redirect({ baseUrl, url }) {
+      return baseUrl + "/create";
+    }
   },
 });
 
