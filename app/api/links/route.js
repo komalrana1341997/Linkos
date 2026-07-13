@@ -1,5 +1,7 @@
 import clientPromise from "@/lib/mongodb";
 
+console.log("🔥 API HIT");
+
 export async function POST(req) {
   try {
     const body = await req.json();

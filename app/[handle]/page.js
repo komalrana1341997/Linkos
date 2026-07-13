@@ -9,7 +9,7 @@ export default async function Page({ params }) {
 
     try {
         // ✅ Get handle safely
-        const { handle } =  params;
+       const handle = params?.handle;
 
         if (!handle) {
             return <div className="text-center mt-10">Invalid URL</div>;
