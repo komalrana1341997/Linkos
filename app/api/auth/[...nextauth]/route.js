@@ -14,46 +14,42 @@ const handler = NextAuth({
     }),
   ],
 
-     callbacks: {
-    // ✅ Fix session
+    callbacks: {
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.sub;
+
+        // 🔥 ALWAYS ensure handle exists
+        try {
+          const client = await clientPromise;
+          const db = client.db("linkify");
+
+          const handle = session.user.name
+            ?.toLowerCase()
+            .replace(/\s+/g, "");
+
+          await db.collection("users").updateOne(
+            { email: session.user.email },
+            {
+              $set: {
+                handle: handle,
+                plan: "free",
+              },
+            },
+            { upsert: true } // 🔥 THIS GUARANTEES INSERT
+          );
+        } catch (err) {
+          console.log("SESSION UPDATE ERROR:", err);
+        }
       }
+
       return session;
     },
 
-    // ✅ Redirect logic
     async redirect({ url, baseUrl }) {
       if (url.startsWith("/")) return `${baseUrl}${url}`;
       if (new URL(url).origin === baseUrl) return url;
       return baseUrl + "/create";
-    },
-  },
-
-  // ✅ THIS IS THE REAL FIX
-  events: {
-    async createUser({ user }) {
-      try {
-        const client = await clientPromise;
-        const db = client.db("linkify");
-
-        const handle = user.name
-          ?.toLowerCase()
-          .replace(/\s+/g, "");
-
-        await db.collection("users").updateOne(
-          { email: user.email },
-          {
-            $set: {
-              handle: handle,
-              plan: "free",
-            },
-          }
-        );
-      } catch (err) {
-        console.log("CREATE USER ERROR:", err);
-      }
     },
   },
 });
