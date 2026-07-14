@@ -14,8 +14,8 @@ const handler = NextAuth({
     }),
   ],
 
-    callbacks: {
-    // ✅ Fix session (IMPORTANT)
+     callbacks: {
+    // ✅ Fix session
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.sub;
@@ -23,8 +23,17 @@ const handler = NextAuth({
       return session;
     },
 
-    // ✅ Add handle to user
-    async signIn({ user }) {
+    // ✅ Redirect logic
+    async redirect({ url, baseUrl }) {
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      if (new URL(url).origin === baseUrl) return url;
+      return baseUrl + "/create";
+    },
+  },
+
+  // ✅ THIS IS THE REAL FIX
+  events: {
+    async createUser({ user }) {
       try {
         const client = await clientPromise;
         const db = client.db("linkify");
@@ -42,22 +51,14 @@ const handler = NextAuth({
             },
           }
         );
-
-        return true;
       } catch (err) {
-        console.log("SIGNIN ERROR:", err);
-        return true; // don't block login
+        console.log("CREATE USER ERROR:", err);
       }
-    },
-
-    // ✅ Redirect logic
-    async redirect({ url, baseUrl }) {
-      if (url.startsWith("/")) return `${baseUrl}${url}`;
-      if (new URL(url).origin === baseUrl) return url;
-      return baseUrl + "/create";
     },
   },
 });
+
+
 
 //   callbacks: {
 //    async signIn({ user }) {
