@@ -4,8 +4,6 @@ export async function GET(req, context) {
   try {
     const { handle } = context.params;
 
-    console.log("HANDLE:", handle);
-
     if (!handle) {
       return Response.json({ error: "Handle missing" }, { status: 400 });
     }
@@ -15,8 +13,8 @@ export async function GET(req, context) {
     const client = await clientPromise;
     const db = client.db("linkify");
 
-    // ✅ FIXED: use "users" collection
-    const user = await db.collection("users").findOne({
+    // ✅ FETCH FROM PROFILES (NOT users)
+    const user = await db.collection("profiles").findOne({
       handle: cleanHandle,
     });
 
@@ -26,7 +24,6 @@ export async function GET(req, context) {
 
     return Response.json(user);
   } catch (err) {
-    console.error("🔥 REAL ERROR:", err);
     return Response.json({ error: err.message }, { status: 500 });
   }
 }

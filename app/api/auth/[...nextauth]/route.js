@@ -4,8 +4,7 @@ import clientPromise from "@/lib/mongodb";
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 
 const handler = NextAuth({
-
-  adapter: MongoDBAdapter(clientPromise), // 🔥 THIS FIXES EVERYTHING
+  adapter: MongoDBAdapter(clientPromise),
 
   providers: [
     GoogleProvider({
@@ -14,12 +13,11 @@ const handler = NextAuth({
     }),
   ],
 
-    callbacks: {
+  callbacks: {
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.sub;
 
-        // 🔥 ALWAYS ensure handle exists
         try {
           const client = await clientPromise;
           const db = client.db("linkify");
@@ -28,18 +26,22 @@ const handler = NextAuth({
             ?.toLowerCase()
             .replace(/\s+/g, "");
 
-          await db.collection("users").updateOne(
+          // ✅ SAVE IN PROFILES COLLECTION
+          await db.collection("profiles").updateOne(
             { email: session.user.email },
             {
               $set: {
+                name: session.user.name,
+                email: session.user.email,
+                image: session.user.image,
                 handle: handle,
                 plan: "free",
               },
             },
-            { upsert: true } // 🔥 THIS GUARANTEES INSERT
+            { upsert: true } // 🔥 ensures insert
           );
         } catch (err) {
-          console.log("SESSION UPDATE ERROR:", err);
+          console.log("SESSION ERROR:", err);
         }
       }
 
@@ -53,6 +55,8 @@ const handler = NextAuth({
     },
   },
 });
+
+export { handler as GET, handler as POST };
 
 
 
@@ -94,5 +98,3 @@ const handler = NextAuth({
 // }
 //   },
 
-
-export { handler as GET, handler as POST };
