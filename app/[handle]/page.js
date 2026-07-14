@@ -4,12 +4,13 @@ import { templates } from "@/lib/templates";
 import Link from "next/link";
 
 
+
 export default async function Page({ params }) {
 
 
     try {
         // ✅ Get handle safely
-       const handle = params?.handle;
+       const { handle } = await params;
 
         if (!handle) {
             return <div className="text-center mt-10">Invalid URL</div>;
@@ -21,7 +22,7 @@ export default async function Page({ params }) {
             .replaceAll(" ", "")
             .trim();
 
-        console.log("HANDLE:", handle);
+       console.log("Searching for:", cleanHandle);
 
 
         // ✅ Connect DB
@@ -30,7 +31,7 @@ export default async function Page({ params }) {
 
         // ✅ Find user
         const userData = await db.collection("links").findOne({ handle: cleanHandle });
-
+console.log("User found:", userData);
 
 
         if (!userData) {
