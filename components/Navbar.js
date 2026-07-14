@@ -54,77 +54,45 @@ const Navbar = ({ username = null }) => {
 
       {/* RIGHT SIDE */}
       <div className="flex gap-3">
-
-        {isHomepage ? (
-          <>
-            
-            <div
-              onClick={() => {
-                if (session) {
-                  const username = session.user.name
-                    ?.toLowerCase()
-                    .replace(/\s+/g, "");
-                  router.push(`/studio/${username}`);
-                } else {
-                  router.push("/login");
-                }
-              }}
-              className="px-4 py-2 font-medium rounded-full cursor-pointer text-black bg-white backdrop-blur-md hover:bg-gray-200 transition"
-            >
-              Login
-            </div>
-
-            
-            <div
-              onClick={() => {
-                if (session) {
-                  const username = session.user.name
-                    ?.toLowerCase()
-                    .replace(/\s+/g, "");
-                  router.push(`/studio/${username}`);
-                } else {
-                  router.push("/signup");
-                }
-              }}
-              className="bg-yellow-200 text-black px-5 py-2 rounded-full font-semibold cursor-pointer hover:scale-105 transition"
-            >
-              Sign up Free
-            </div>
-          </>
-        ) : session ? (
-          <>
-            <div
-              onClick={() => router.push(`/studio/${username}`)}
-              className="bg-green-500 text-white px-4 py-2 rounded cursor-pointer"
-            >
-              Dashboard
-            </div>
-
-            <div
-              onClick={() => signOut({ callbackUrl: "/login" })}
-              className="bg-red-500 text-white px-4 py-2 rounded cursor-pointer"
-            >
-              Logout
-            </div>
-          </>
-        ) : (
-          <>
-            <div
-              onClick={() => router.push("/login")}
-              className="bg-gray-500 px-4 py-2 font-semibold rounded cursor-pointer"
-            >
-              Login
-            </div>
-
-            <div
-              onClick={() => router.push("/signup")}
-              className="border border-yellow-200 bg-pink-100 rounded-2xl px-4 py-2 font-semibold cursor-pointer hover:bg-pink-200"
-            >
-              Sign Up
-            </div>
-          </>
-        )}
+  {session ? (
+    <>
+      <div
+        onClick={() => {
+          const username = session.user.name
+            ?.toLowerCase()
+            .replace(/\s+/g, "");
+          router.push(`/studio/${username}`);
+        }}
+        className="bg-green-500 text-white px-4 py-2 rounded cursor-pointer"
+      >
+        Dashboard
       </div>
+
+      <div
+        onClick={() => signOut({ callbackUrl: "/" })}
+        className="bg-red-500 text-white px-4 py-2 rounded cursor-pointer"
+      >
+        Logout
+      </div>
+    </>
+  ) : (
+    <>
+      <div
+        onClick={() => router.push("/login")}
+        className="px-4 py-2 font-medium rounded-full cursor-pointer text-black bg-white hover:bg-gray-200 transition"
+      >
+        Login
+      </div>
+
+      <div
+        onClick={() => router.push("/signup")}
+        className="bg-yellow-200 text-black px-5 py-2 rounded-full font-semibold cursor-pointer hover:scale-105 transition"
+      >
+        Sign up Free
+      </div>
+    </>
+  )}
+</div>
     </nav>
   )
 }
