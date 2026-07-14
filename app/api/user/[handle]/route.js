@@ -2,8 +2,7 @@ import clientPromise from "@/lib/mongodb";
 
 export async function GET(req, context) {
   try {
-    
-    const { handle } = await context.params;
+    const { handle } = context.params;
 
     console.log("HANDLE:", handle);
 
@@ -16,7 +15,8 @@ export async function GET(req, context) {
     const client = await clientPromise;
     const db = client.db("linkify");
 
-    const user = await db.collection("links").findOne({
+    // ✅ FIXED: use "users" collection
+    const user = await db.collection("users").findOne({
       handle: cleanHandle,
     });
 
@@ -27,7 +27,6 @@ export async function GET(req, context) {
     return Response.json(user);
   } catch (err) {
     console.error("🔥 REAL ERROR:", err);
-
     return Response.json({ error: err.message }, { status: 500 });
   }
 }
